@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Report Keysight scintillator power status
+# Report Keysight power status
 # J. Kelley, jkelley@icecube.wisc.edu
 #
 from keysight import Keysight
