@@ -1,0 +1,17 @@
+#!/usr/bin/python
+#
+# Report Keysight scintillator power status
+# J. Kelley, jkelley@icecube.wisc.edu
+#
+from keysight import Keysight
+
+HOSTNAME = "spwr01"
+PORT = 5024
+
+k = Keysight(HOSTNAME, PORT)
+if k.isOn():
+    print "Power supply output is ON."
+    print "Voltage: %.1f V" % k.getVoltage()
+    print "Current: %.3f A" % k.getCurrent()
+else:
+    print "Power supply output is OFF."
