@@ -1,19 +1,28 @@
 #!/usr/bin/python
 #
-# Turn Keysight power ON
+# Turn Kepco power ON
 # J. Kelley, jkelley@icecube.wisc.edu
 #
 
 import sys
 import time
-from keysight import Keysight
+from kepco import Kepco, KepcoException
 
-HOSTNAME = "spwr01"
-PORT = 5024
+HOSTNAME = "drts-pwr1"
+PORT = 5025
 
-k = Keysight(HOSTNAME, PORT)
+
+try:
+    k = Kepco(HOSTNAME, PORT)
+except ConnectionRefusedError:
+    print("Couldn't connect to %s:%d, exiting." % (HOSTNAME, PORT))
+    sys.exit(-1)
+except KepcoException:
+    print("Unexpected response from power supply at %s:%d, exiting." % (HOSTNAME, PORT))
+    sys.exit(-1)
+
 if k.isOn():
-    print "Power supply output is already ON."
+    print("Power supply output is already ON.")
     sys.exit()
 else:
     sys.stdout.write("Turning power supply output ON -- are you sure (y/n)? ")
@@ -21,14 +30,14 @@ else:
     if choice in ['yes', 'y']:
         k.on()
     else:
-        print "Aborted."
+        print("Aborted.")
         sys.exit()
 
 if k.isOn():
-    print "Power supply output is ON."
+    print("Power supply output is ON.")
     time.sleep(2)
-    print "Voltage: %.1f V" % k.getVoltage()
-    print "Current: %.3f A" % k.getCurrent()
+    print("Voltage: %.1f V" % k.getVoltage())
+    print("Current: %.3f A" % k.getCurrent())
 else:
-    print "Power supply output is still OFF!"
+    print("Power supply output is still OFF!")
 
