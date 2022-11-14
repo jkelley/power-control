@@ -4,19 +4,10 @@
 #
 
 import sys
-from kepco import Kepco, KepcoException
+from kepco import Kepco
 
 HOSTNAME = "drts-pwr1"
-PORT = 5025
-
-try:
-    k = Kepco(HOSTNAME, PORT)
-except ConnectionRefusedError:
-    print("Couldn't connect to %s:%d, exiting." % (HOSTNAME, PORT))
-    sys.exit(-1)
-except KepcoException:
-    print("Unexpected response from power supply at %s:%d, exiting." % (HOSTNAME, PORT))
-    sys.exit(-1)
+k = Kepco(HOSTNAME)
 
 if k.isOn():
     print("Power supply output is ON.")

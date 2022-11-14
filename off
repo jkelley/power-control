@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 # Turn Kepco power OFF
 # J. Kelley, jkelley@icecube.wisc.edu
@@ -6,20 +6,11 @@
 
 import sys
 import time
-from kepco import Kepco, KepcoException
+from kepco import Kepco
 
 HOSTNAME = "drts-pwr1"
-PORT = 5025
 
-try:
-    k = Kepco(HOSTNAME, PORT)
-except ConnectionRefusedError:
-    print("Couldn't connect to %s:%d, exiting." % (HOSTNAME, PORT))
-    sys.exit(-1)
-except KepcoException:
-    print("Unexpected response from power supply at %s:%d, exiting." % (HOSTNAME, PORT))
-    sys.exit(-1)
-
+k = Kepco(HOSTNAME)
 k.off()
 if k.isOn():
     print("ERROR: power supply output is still ON!")

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 # Turn Kepco power ON
 # J. Kelley, jkelley@icecube.wisc.edu
@@ -6,27 +6,23 @@
 
 import sys
 import time
-from kepco import Kepco, KepcoException
+from kepco import Kepco
+
+# Just in case someone is using Python2
+try:
+    q_input = raw_input
+except NameError:
+    q_input = input
 
 HOSTNAME = "drts-pwr1"
-PORT = 5025
-
-
-try:
-    k = Kepco(HOSTNAME, PORT)
-except ConnectionRefusedError:
-    print("Couldn't connect to %s:%d, exiting." % (HOSTNAME, PORT))
-    sys.exit(-1)
-except KepcoException:
-    print("Unexpected response from power supply at %s:%d, exiting." % (HOSTNAME, PORT))
-    sys.exit(-1)
+k = Kepco(HOSTNAME)
 
 if k.isOn():
     print("Power supply output is already ON.")
     sys.exit()
 else:
     sys.stdout.write("Turning power supply output ON -- are you sure (y/n)? ")
-    choice = raw_input().lower()
+    choice = q_input().lower()
     if choice in ['yes', 'y']:
         k.on()
     else:

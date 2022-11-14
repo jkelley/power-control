@@ -7,12 +7,18 @@
 import time
 import telnetlib
 
+class SCPIException(Exception):
+    pass
+
 class SCPI:
     CMD_DELAY_SEC = 0.2
     def __init__(self, hostname, port):
         self.hostname = hostname
         self.port = port
-        self.telnet = telnetlib.Telnet(hostname, port)
+        try:
+            self.telnet = telnetlib.Telnet(hostname, port)
+        except ConnectionRefusedError:
+            raise SCPIException("Connection to %s:%d refused" % (hostname, port))
         self._probe()
 
     def _cmd(self, scpi_cmd):
