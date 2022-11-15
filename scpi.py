@@ -19,12 +19,20 @@ class SCPI:
             self.telnet = telnetlib.Telnet(hostname, port)
         except ConnectionRefusedError:
             raise SCPIException("Connection to %s:%d refused" % (hostname, port))
+        self._remote_init()
         self._probe()
+
+    def __str__(self):
+        return("%s:%d -- %s %s #%s" % (self.hostname, self.port,
+                                       self.manufacturer, self.model, self.serial))
 
     def _cmd(self, scpi_cmd):
         self.telnet.write((scpi_cmd + "\n").encode())
         time.sleep(self.CMD_DELAY_SEC)
         return self.telnet.read_eager().decode().strip()
+
+    def _remote_init(self):
+        return
 
     def _probe(self):        
         resp = self._cmd("*IDN?")

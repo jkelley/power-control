@@ -15,8 +15,8 @@ class Kepco(SCPI):
 
     def __init__(self, hostname, port=DEFAULT_PORT):
         super().__init__(hostname, port)
+
+    def _remote_init(self):
         # Put unit in remote mode
         self._cmd("SYST:REM")
-        # Reprobe for unit ID
-        self._probe()
 

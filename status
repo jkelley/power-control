@@ -8,6 +8,7 @@ from kepco import Kepco
 
 HOSTNAME = "drts-pwr1"
 k = Kepco(HOSTNAME)
+print(k)
 
 if k.isOn():
     print("Power supply output is ON.")
