@@ -36,7 +36,8 @@ class SCPI:
 
     def _probe(self):        
         resp = self._cmd("*IDN?")
-        (self.manufacturer, self.model, self.serial, self.fwvers) = resp.split(",")
+        # Keysight jams both fwvers and hwvers together in fourth field
+        (self.manufacturer, self.model, self.serial, self.fwvers) = resp.split(",", 3)
         
     def getCurrent(self):
         return float(self._cmd("MEAS:CURR?"))
