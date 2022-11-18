@@ -126,11 +126,11 @@ class Keysight(SCPI):
 
     def _remote_init(self):
         # Read header and initial prompt
-        self.telnet.read_until(PROMPT.encode())
+        self.telnet.read_until(self.PROMPT.encode())
 
     def cmd(self, scpi_cmd):
         self.telnet.write((scpi_cmd + "\n").encode())
-        resp = self.telnet.read_until(PROMPT.encode()).decode()
+        resp = self.telnet.read_until(self.PROMPT.encode()).decode()
         # Response includes newline and prompt, remove them
         resp = resp.split("\n")[0].strip()
         return resp
