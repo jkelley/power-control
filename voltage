@@ -1,31 +1,34 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
-# Report Keysight power status
-# J. Kelley, jkelley@icecube.wisc.edu
+# Set output voltage
 #
+
 import sys
 import time
-from keysight import Keysight
+from kepco import Kepco
 
-HOSTNAME = "spwr01"
-PORT = 5024
-
-if len(sys.argv) != 2:
-   print "Usage: %s <voltage>" % sys.argv[0]
-   sys.exit(0)
+HOSTNAME = "drts-pwr1"
 
 try:
    v = float(sys.argv[1])
+except IndexError:
+    print("Usage: %s <voltage>" % sys.argv[0])
+    sys.exit()
 except ValueError:
-   print "Error: bad voltage specified, exiting."
-   sys.exit(-1)
+    print("Bad voltage specified, exiting.")
+    sys.exit(-1)
 
-if (v < 0) or (v > 600):
-   print "Error: voltage out of range, exiting."
-   sys.exit(-1)
+k = Kepco(HOSTNAME)
 
-k = Keysight(HOSTNAME, PORT)
-print "Setting voltage to %.1f V." % v
+if (v < 0) or (v > k.MAX_VOLTAGE):
+    print("Voltage out of range, exiting.")
+    sys.exit(-1)
+
+print("Setting voltage to %.1f V." % v)
 k.setVoltage(v)
 time.sleep(1)
-print "Voltage level: %.1f V" % k.getVoltage()
+if k.isOn():
+    print("Voltage level: %.1f V" % k.getVoltage())
+else:
+    print("Power supply output is OFF.")
+
