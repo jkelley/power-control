@@ -1,0 +1,140 @@
+#!/usr/bin/env python
+#
+# Power supply primary interface script.
+# 
+
+import time
+import sys
+import os
+import argparse
+import configparser
+from power_supply import PowerSupply, PowerSupplyException
+
+DEFAULT_CONF = "supply.conf"
+
+#----------------------------------------
+# User command implementations
+
+def status(k):
+    if k.isOn():
+        print("Power supply output is ON.")
+        print("Voltage: %.1f V" % k.getVoltage())
+        print("Current: %.3f A" % k.getCurrent())
+    else:
+        print("Power supply output is OFF.")
+
+def on(k):
+    if k.isOn():
+        print("Power supply output is already ON.")
+        return
+    else:
+        sys.stdout.write("Turning power supply output ON -- are you sure (y/n)? ")
+        choice = input().lower()
+        if choice in ['yes', 'y']:
+            k.on()
+        else:
+            print("Aborted.")
+            return
+        time.sleep(2)
+        status(k)
+
+def off(k):
+    k.off()
+    time.sleep(1)
+    status(k)
+
+def voltage(k, v):
+    v = float(v)
+    if (v < 0) or (v > k.MAX_VOLTAGE):
+        print("Voltage out of range.")
+    else:
+        print("Setting voltage to %.1f V." % v)
+        k.setVoltage(v)
+    time.sleep(1)
+    status(k)
+
+command_dict = {"status": status,
+                "on" : on,
+                "off" : off,
+                "voltage" : voltage}
+
+#----------------------------------------
+    
+def main():
+    parser = argparse.ArgumentParser()
+    command_help = "["+", ".join(command_dict.keys())+"] or raw SCPI command"
+    parser.add_argument("command", type=str, help=command_help)
+    parser.add_argument("cmd_args", nargs='?', help="command-specific arguments")
+    parser.add_argument("-c", "--config", help="supply configuration file")
+    parser.add_argument("-t", "--type", dest='supply_type', help="supply type")
+    parser.add_argument("-H", "--hostname", help="supply hostname")
+    parser.add_argument("-p", "--port", type=int, help="supply interface port")
+    args = parser.parse_args()
+
+    hostname = None
+    supply_type = "generic"
+    port = None
+
+    # Read configuration file
+    config_file = None
+    if args.config is not None:
+        config_file = args.config
+    elif os.path.isfile(DEFAULT_CONF):
+        print("Using configuration file %s" % DEFAULT_CONF)
+        config_file = DEFAULT_CONF
+
+    if config_file is not None:
+        config = configparser.ConfigParser()
+        config.read(config_file)
+        try:
+            hostname = config['supply']['hostname']
+            supply_type = config['supply']['type']
+            if 'port' in config['supply']:
+                port = config['supply']['port']
+        except KeyError:
+            print("ERROR: config file %s is malformed or doesn't exist." % config_file)
+            sys.exit(-1)      
+
+    # Command-line args override config file if specified
+    if args.hostname is not None:
+        hostname = args.hostname
+    if args.supply_type is not None:
+        supply_type = args.supply_type
+    if args.port is not None:
+        port = args.port
+
+    # Check that we have what we need
+    if hostname is None:
+        print("ERROR: must specify hostname in config file or on command line.")
+        sys.exit(-1)
+
+    # Create the power supply interface
+    try:
+        k = PowerSupply(hostname, supply_type=supply_type, port=port)
+    except PowerSupplyException as e:
+        print("ERROR:",e)
+        sys.exit(-1)
+
+    print("Connected to %s:%s" % (k.hostname, k.port))
+    print(k)
+
+    # Execute whatever command was specified
+    if args.command in command_dict:
+        if args.cmd_args is None:
+            command_dict[args.command](k)
+        else:
+            command_dict[args.command](k, args.cmd_args)
+    else:
+        # Try to send generic command
+        if args.cmd_args is None:
+            scpi_cmd = args.command
+        else:
+            scpi_cmd = " ".join((args.command, args.cmd_args))
+        print("Command: "+scpi_cmd)
+        resp = k.cmd(scpi_cmd)
+        if resp:
+            print("Response: "+resp)
+        
+
+if __name__ == "__main__":
+    main()
