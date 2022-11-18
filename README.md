@@ -9,6 +9,8 @@ Currently explicity supported types are the Keysight N5700-series or Kepco
 KLN power supply.  Other power supplies may work using the default
 SCPI interface, but this is not guaranteed.
 
+Requirements: Python 3.
+
 ## Usage
 
 The networked power supply is controlled using the `power` script:
