@@ -22,6 +22,8 @@ def PowerSupply(hostname, port = None, supply_type = "generic"):
     elif supply_type == "keysight":
         supply = Keysight
     else:
+        if (supply_type != "generic"):
+            print("WARNING: supply type %s unknown, using generic SCPI" % supply_type)
         supply = SCPI
         
     if port is None:
@@ -73,6 +75,9 @@ class SCPI:
     def getCurrent(self):
         return float(self.cmd("MEAS:CURR?"))
 
+    def setCurrent(self, i):
+        self.cmd("SOUR:CURR %f" % i)
+
     def getVoltage(self):
         return float(self.cmd("MEAS:VOLT?"))
 
@@ -102,6 +107,7 @@ class Kepco(SCPI):
     DEFAULT_PORT = 5025
     # FIX ME determine this dynamically
     MAX_VOLTAGE = 80
+    MAX_CURRENT = 9.5
 
     def __init__(self, hostname, port=DEFAULT_PORT):
         super().__init__(hostname, port)
