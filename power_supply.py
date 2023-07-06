@@ -22,6 +22,8 @@ def PowerSupply(hostname, port = None, supply_type = "generic"):
     elif supply_type == "keysight":
         supply = Keysight
     else:
+        if (supply_type != "generic"):
+            print("WARNING: supply type %s unknown, using generic SCPI" % supply_type)
         supply = SCPI
         
     if port is None:

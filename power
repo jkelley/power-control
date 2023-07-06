@@ -55,10 +55,10 @@ def voltage(k, v):
 
 def current(k, i):
     i = float(i)
-    if (i <= 0) or (i > k.MAX_CURRENT):
+    if (i < 0) or (i > k.MAX_CURRENT):
         print("Current out of range.")
     else:
-        print("Setting max current to %.2f A." % i)
+        print("Setting current limit to %.2f A." % i)
         k.setCurrent(i)
     time.sleep(1)
     status(k)
