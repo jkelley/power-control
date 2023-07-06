@@ -53,10 +53,22 @@ def voltage(k, v):
     time.sleep(1)
     status(k)
 
+def current(k, i):
+    i = float(i)
+    if (i <= 0) or (i > k.MAX_CURRENT):
+        print("Current out of range.")
+    else:
+        print("Setting max current to %.2f A." % i)
+        k.setCurrent(i)
+    time.sleep(1)
+    status(k)
+
 command_dict = {"status": status,
                 "on" : on,
                 "off" : off,
-                "voltage" : voltage}
+                "voltage" : voltage,
+                "current" : current
+}
 
 #----------------------------------------
     
