@@ -53,6 +53,8 @@ class SCPI:
             raise PowerSupplyException("Connection to %s:%d refused" % (hostname, port))
         except socket.gaierror:
             raise PowerSupplyException("Hostname %s unknown" % (hostname))
+        except OSError as e:
+            raise PowerSupplyException("Couldn't connect to %s: %s" % (hostname, e))
         self._remote_init()
         self._probe()
 
